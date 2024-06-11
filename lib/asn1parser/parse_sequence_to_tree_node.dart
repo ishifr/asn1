@@ -19,61 +19,67 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
   var toHex = EncodeToHex();
+  int counter = 0;
+  // counter 
+
+  print(
+      "obj: ${obj.tag}: ${obj.totalEncodedByteLength}: ${obj.valueByteLength}:  ${obj.valueStartPosition}");
   if (obj.tag == ASN1Tags.SEQUENCE) {
-    node.text =
-        "(${obj.totalEncodedByteLength}, ${obj.valueByteLength})  SEQUENCE";
+    counter += obj.valueStartPosition;
+    node.text = "  SEQUENCE: {$counter, ${obj.valueByteLength}}";
     var sequence = obj as ASN1Sequence;
     sequence.elements?.forEach((element) {
       node.children.add(parseSequence(Asn1TreeNode(), element));
     });
   } else if (obj.tag == ASN1Tags.SET) {
-    node.text = "  SET";
+    node.text = "  SET  {${obj.valueStartPosition}, ${obj.valueByteLength}}";
     var sequence = obj as ASN1Set;
     sequence.elements?.forEach((element) {
       node.children.add(parseSequence(Asn1TreeNode(), element));
     });
   } else if (obj.tag == ASN1Tags.OBJECT_IDENTIFIER) {
     var i = obj as ASN1ObjectIdentifier;
-    Map oid = findOID(i.objectIdentifierAsString??'');
+    Map oid = findOID(i.objectIdentifierAsString ?? '');
     node.text =
-        "  OBJECT_I:  ${oid['readableName']} [${oid['identifierString']}]";
+        "  OBJECT_I  {${obj.valueByteLength}}:  ${oid['readableName']} [${oid['identifierString']}]";
   } else if (obj.tag == ASN1Tags.PRINTABLE_STRING) {
     var i = obj as ASN1PrintableString;
-    node.text = "  P_STRING:  ${i.stringValue} ";
+    node.text = "  P_STRING  {${obj.valueByteLength}}:  ${i.stringValue} ";
   } else if (obj.tag == ASN1Tags.INTEGER) {
     var i = obj as ASN1Integer;
-    node.text = "  INTEGER:  ${i.integer} ";
+    node.text = "  INTEGER  {${obj.valueByteLength}}:  ${i.integer} ";
   } else if (obj.tag == ASN1Tags.BOOLEAN) {
     var i = obj as ASN1Boolean;
-    node.text = "  BOOLEAN:  ${i.boolValue} ";
+    node.text = "  BOOLEAN  {${obj.valueByteLength}}:  ${i.boolValue} ";
   } else if (obj.tag == ASN1Tags.NULL) {
-    node.text = "  NULL";
+    node.text = "  NULL  {${obj.valueByteLength}}";
   } else if (obj.tag == ASN1Tags.UTF8_STRING) {
     var i = obj as ASN1UTF8String;
-    node.text = "  UTF8STRING: ${i.utf8StringValue} ";
+    node.text = "  UTF8STRING  {${obj.valueByteLength}}: ${i.utf8StringValue} ";
   } else if (obj.tag == ASN1Tags.BIT_STRING) {
     var i = obj as ASN1BitString;
     node.text =
-        "  BIT STRING:  [${i.unusedbits}] :${toHex.encode(Uint8List.fromList(i.stringValues ?? []))} ";
+        "  BIT STRING  {${obj.valueByteLength}}:  [${i.unusedbits}] :${toHex.encode(Uint8List.fromList(i.stringValues ?? []))} ";
   } else if (obj.tag == ASN1Tags.IA5_STRING) {
     var i = obj as ASN1IA5String;
-    node.text = "  IA5_STRING:  ${i.stringValue} ";
+    node.text = "  IA5_STRING  {${obj.valueByteLength}}:  ${i.stringValue} ";
   } else if (obj.tag == ASN1Tags.UTC_TIME) {
     var i = obj as ASN1UtcTime;
-    node.text = "  UTC_TIME:  ${i.time} ";
+    node.text = "  UTC_TIME  {${obj.valueByteLength}}:  ${i.time} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING) {
     var i = obj as ASN1OctetString;
-    node.text = "  OCTET_STRING:  ${toHex.encode(i.octets)} ";
+    node.text =
+        "  OCTET_STRING  {${obj.valueByteLength}}:  ${toHex.encode(i.octets)} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING_CONSTRUCTED) {
     // var i = obj as ASN1OctetString;
     // print("${i.elements}");
-    node.text = "  OCTET_STRING_C";
+    node.text = "  OCTET_STRING_C  {${obj.valueByteLength}}";
   } else if (obj.tag == 0x00) {
     print("EOC");
   } else if (obj.tag != null) {
     /// CONTEXT SPECIFIC
     if (obj.tag! >= 0xA0 && obj.tag! <= 0xBF) {
-      node.text = "  CONTEXT SPECIFIC";
+      node.text = "  CONTEXT SPECIFIC  {${obj.valueByteLength}}";
       var content = ASN1Parser(obj.valueBytes).nextObject();
       node.children.add(parseSequence(Asn1TreeNode(), content));
     } else {
