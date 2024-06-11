@@ -3,23 +3,8 @@ import 'dart:typed_data';
 
 import 'package:asn1/asn1parser/asn1_tree_node.dart';
 import 'package:asn1/asn1parser/encode_to_hex.dart';
+import 'package:asn1/asn1parser/object_identifiers_database.dart';
 import 'package:pointycastle/asn1.dart';
-
-final oidMap = {
-  '1.2.840.113549.1.7.2': 'pkcs7-signedData',
-  '1.2.840.113549.1.7.1': 'pkcs7-data',
-  '1.2.860.3.15.1.3.2.1.1': 'UZDST 1106:2009 II default digest parameters',
-  '1.2.860.3.15.1.1.2.2.2.2':
-      'UZDST 1092:2009 II/1106:2009 sign. alg. with digest',
-  '1.2.860.3.15.1.1.2.1': 'UZDST 1092:2009 II signature public key',
-  '1.2.860.3.15.1.1.2.1.1':
-      'UZDST 1092:2009 II signature parameters, UNICON.UZ paramset A',
-  '2.5.4.41': 'name',
-  '1.2.840.113549.1.9.3': 'contentType',
-  '1.2.860.3.16.1.2': 'Personal Identification Number (PINFL)',
-  '1.2.860.3.16.1.1': 'Tax Identification Number (INN)',
-  // Add more OIDs and their readable names here
-};
 
 Asn1TreeNode parseSequenceToTreeNode(String base64String) {
   var bytes = base64.decode(base64String);
@@ -49,9 +34,9 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
     });
   } else if (obj.tag == ASN1Tags.OBJECT_IDENTIFIER) {
     var i = obj as ASN1ObjectIdentifier;
-
+    Map oid = findOID(i.objectIdentifierAsString??'');
     node.text =
-        "  OBJECT_I:  ${i.readableName ?? oidMap[i.objectIdentifierAsString]} [${i.objectIdentifierAsString}]";
+        "  OBJECT_I:  ${oid['readableName']} [${oid['identifierString']}]";
   } else if (obj.tag == ASN1Tags.PRINTABLE_STRING) {
     var i = obj as ASN1PrintableString;
     node.text = "  P_STRING:  ${i.stringValue} ";
