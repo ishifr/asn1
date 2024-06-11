@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:asn1/asn1parser/asn1_tree_node.dart';
+import 'package:asn1/asn1parser/encode_to_hex.dart';
 import 'package:pointycastle/asn1.dart';
 
 final oidMap = {
@@ -10,12 +11,13 @@ final oidMap = {
   '1.2.860.3.15.1.3.2.1.1': 'UZDST 1106:2009 II default digest parameters',
   '1.2.860.3.15.1.1.2.2.2.2':
       'UZDST 1092:2009 II/1106:2009 sign. alg. with digest',
-  '1.2.860.3.15.1.1.2.1':'UZDST 1092:2009 II signature public key',
-  '1.2.860.3.15.1.1.2.1.1':'UZDST 1092:2009 II signature parameters, UNICON.UZ paramset A',
+  '1.2.860.3.15.1.1.2.1': 'UZDST 1092:2009 II signature public key',
+  '1.2.860.3.15.1.1.2.1.1':
+      'UZDST 1092:2009 II signature parameters, UNICON.UZ paramset A',
   '2.5.4.41': 'name',
-  '1.2.840.113549.1.9.3':'contentType',
-  '1.2.860.3.16.1.2':'Personal Identification Number (PINFL)',
-  '1.2.860.3.16.1.1':'Tax Identification Number (INN)',
+  '1.2.840.113549.1.9.3': 'contentType',
+  '1.2.860.3.16.1.2': 'Personal Identification Number (PINFL)',
+  '1.2.860.3.16.1.1': 'Tax Identification Number (INN)',
   // Add more OIDs and their readable names here
 };
 
@@ -31,6 +33,7 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 }
 
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
+  var toHex = EncodeToHex();
   if (obj.tag == ASN1Tags.SEQUENCE) {
     node.text =
         "(${obj.totalEncodedByteLength}, ${obj.valueByteLength})  SEQUENCE";
@@ -66,7 +69,7 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
   } else if (obj.tag == ASN1Tags.BIT_STRING) {
     var i = obj as ASN1BitString;
     node.text =
-        "  BIT STRING:  [${i.unusedbits}] :${encodeToHex(Uint8List.fromList(i.stringValues ?? []))} ";
+        "  BIT STRING:  [${i.unusedbits}] :${toHex.encode(Uint8List.fromList(i.stringValues ?? []))} ";
   } else if (obj.tag == ASN1Tags.IA5_STRING) {
     var i = obj as ASN1IA5String;
     node.text = "  IA5_STRING:  ${i.stringValue} ";
@@ -75,11 +78,13 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
     node.text = "  UTC_TIME:  ${i.time} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING) {
     var i = obj as ASN1OctetString;
-    node.text = "  OCTET_STRING:  ${encodeToHex(i.octets)} ";
+    node.text = "  OCTET_STRING:  ${toHex.encode(i.octets)} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING_CONSTRUCTED) {
-    var i = obj as ASN1OctetString;
-    print("${i.elements}");
+    // var i = obj as ASN1OctetString;
+    // print("${i.elements}");
     node.text = "  OCTET_STRING_C";
+  } else if (obj.tag == 0x00) {
+    print("EOC");
   } else if (obj.tag != null) {
     /// CONTEXT SPECIFIC
     if (obj.tag! >= 0xA0 && obj.tag! <= 0xBF) {
@@ -90,21 +95,20 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
       print('The object is not a context-specific tag: ${obj.tag}');
     }
   }
+  var a = Asn1TreeNode();
+  if (handleIndefiniteLength(obj.encodedBytes?.toList() ?? [])) {
+    a.text = "  EOC";
+    node.children.add(a);
+  }
   return node;
 }
 
-printTree(Asn1TreeNode root, int depth) {
-  print("  " * depth + root.text);
-  for (var node in root.children) {
-    printTree(node, depth + 1);
+bool handleIndefiniteLength(List<int> bytes) {
+  for (int i = 0; i < bytes.length - 1; i++) {
+    if (bytes[i] == 0x00 && bytes[i + 1] == 0x00) {
+      print('End-of-Content (EOC) marker found within sequence');
+      return true;
+    }
   }
-}
-
-String encodeToHex(Uint8List? octets) {
-  var hex = "";
-  for (var v in octets ?? []) {
-    var s = v.toRadixString(16);
-    hex += (s.length == 1 ? "0$s" : s);
-  }
-  return hex;
+  return false;
 }
