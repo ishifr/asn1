@@ -1,52 +1,48 @@
 import 'dart:convert';
 
+import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:asn1/x509/validity.dart';
 import 'package:pointycastle/asn1.dart';
 
 class X509 {
-  final String base64String;
+  late String base64String;
+  Map<String, Object?>? tBSCertificate;
   X509(this.base64String);
 
-  /// CertificateSerialNumber
-  BigInt? serialNumber() {
+  X509.getTBSCertificate(this.base64String) {
     ASN1Sequence sn = parse(base64String);
     sn = sn.elements?.first as ASN1Sequence;
-    var i = sn.elements?[1] as ASN1Integer;
+    var signature = findOID(((sn.elements?.elementAt(2) as ASN1Sequence)
+            .elements
+            ?.first as ASN1ObjectIdentifier)
+        .objectIdentifierAsString!);
 
-    return i.integer;
+    tBSCertificate = {
+      'version': (ASN1Parser(sn.elements?.elementAt(0).valueBytes).nextObject()
+              as ASN1Integer)
+          .integer,
+      'serialNumber': (sn.elements?.elementAt(1) as ASN1Integer).integer,
+      'signature':
+          "[${signature['identifierString']}] ${signature['readableName']}",
+      'issuer': '',
+      'validity':
+          Validity.fromSequence(sn.elements?.elementAt(4) as ASN1Sequence)
+              .validity,
+      'subject': '',
+      'subjectPublicKeyInfo': '',
+      'issuerUniqueID': '',
+    };
   }
 
-  /// AlgorithmIdentifier
-  String? signature() {
-    ASN1Sequence sn = parse(base64String);
-    sn = sn.elements?.first as ASN1Sequence;
-    sn = sn.elements?[2] as ASN1Sequence;
-    var i = sn.elements?.first as ASN1ObjectIdentifier;
-
-    return i.readableName;
-  }
-
-    /// Validity
-   Map<String,DateTime?> validity() {
-    ASN1Sequence sn = parse(base64String);
-    sn = sn.elements?.first as ASN1Sequence;
-    sn = sn.elements?[4] as ASN1Sequence;
-    var v = Validity.fromSequence(sn);
-    // var i = sn.elements?.first as ASN1UtcTime;
-    // var i1 = sn.elements?[1] as ASN1UtcTime;
-
-    return {"notBefore":v.notAfter,"notAfter":v.notBefore};
-  }
-
-    /// subject
-   Map<String,DateTime?> subject() {
+  /// subject
+  Map<String, DateTime?> subject() {
     ASN1Sequence sn = parse(base64String);
     sn = sn.elements?.first as ASN1Sequence;
     sn = sn.elements?[5] as ASN1Sequence;
     var i = sn.elements?.first as ASN1UtcTime;
     var i1 = sn.elements?[1] as ASN1UtcTime;
 
-    return {"notBefore":i.time,"notAfter":i1.time};
+    return {"notBefore": i.time, "notAfter": i1.time};
   }
 }
 

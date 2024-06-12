@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print
-
 import 'dart:convert';
 import 'package:pointycastle/asn1.dart';
 
@@ -15,13 +14,14 @@ import 'package:pointycastle/asn1.dart';
 class Validity extends ASN1Object {
   DateTime? notBefore;
   DateTime? notAfter;
+  late Map<String, DateTime?> validity;
 
   Validity({this.notBefore, this.notAfter});
 
-  Validity.fromSequence(ASN1Sequence sequence) {
+  Validity.fromSequence(ASN1Sequence? sequence) {
     try {
-      ASN1Object? notBeforeObj = sequence.elements?.first;
-      ASN1Object? notAfterObj = sequence.elements?[1];
+      ASN1Object? notBeforeObj = sequence?.elements?.first;
+      ASN1Object? notAfterObj = sequence?.elements?[1];
       if (notBeforeObj is ASN1UtcTime) {
         notBefore = notBeforeObj.time;
       } else if (notBeforeObj is ASN1GeneralizedTime) {
@@ -38,6 +38,10 @@ class Validity extends ASN1Object {
         throw ArgumentError(
             'Element at index 1 has to be ASN1GeneralizedTime, ASN1UtcTime');
       }
+      validity = {
+        'notBefore': notBefore,
+        'notAfter': notAfter,
+      };
     } catch (e) {
       print("Validity.fromSequence: $e");
     }

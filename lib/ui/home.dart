@@ -26,9 +26,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    print("This is version: ${X509(x509).serialNumber()}");
-    print("This is signature: ${X509(x509).signature()}");
-    print("This is validty: ${X509(x509).validity()}");
+    print("This is version: ${X509.getTBSCertificate(x509).tBSCertificate}");
     final treeController = TreeController<Asn1TreeNode>(
       roots: [parseSequenceToTreeNode(x509)],
       childrenProvider: (Asn1TreeNode node) => node.children,

@@ -1,3 +1,17 @@
+Map findOID(String oid) {
+  for (var i in oi) {
+    if (oid == i['identifierString']) {
+      return i;
+    }
+  }
+  return {
+    'identifierString': 'Not implemented oid [$oid]',
+    'readableName': 'Not implemented oid [$oid]',
+    'identifier': []
+  };
+}
+
+
 ///
 /// A list of object identifiers, holding the identifier and a readable name.
 ///
@@ -721,15 +735,3 @@ const oi = [
   }
 ];
 
-Map findOID(String oid) {
-  for (var i in oi) {
-    if (oid == i['identifierString']) {
-      return i;
-    }
-  }
-  return {
-    'identifierString': 'Not implemented oid [$oid]',
-    'readableName': 'Not implemented oid [$oid]',
-    'identifier': []
-  };
-}
