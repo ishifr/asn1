@@ -1,62 +1,45 @@
-import 'dart:convert';
+// ignore_for_file: avoid_print
 
+import 'dart:convert';
 import 'package:pointycastle/asn1.dart';
 
-class Validity {
-  final DateTime notBefore;
-  final DateTime notAfter;
+/// Validity ::= SEQUENCE {
+///  notBefore      Time,
+///   notAfter       Time
+/// }
 
-  Validity({required this.notBefore, required this.notAfter});
+/// Time ::= CHOICE {
+///   utcTime        UTCTime,
+///   generalTime    GeneralizedTime
+/// }
+class Validity extends ASN1Object {
+  DateTime? notBefore;
+  DateTime? notAfter;
 
-  factory Validity.fromAsn1(ASN1Sequence sequence) => Validity(
-        notBefore: toDart(sequence.elements![0]),
-        notAfter: toDart(sequence.elements![1]),
-      );
+  Validity({this.notBefore, this.notAfter});
 
-
-  @override
-  String toString([String prefix = '']) {
-    var buffer = StringBuffer();
-    buffer.writeln('${prefix}Not Before: $notBefore');
-    buffer.writeln('${prefix}Not After: $notAfter');
-    return buffer.toString();
+  Validity.fromSequence(ASN1Sequence sequence) {
+    try {
+      ASN1Object? notBeforeObj = sequence.elements?.first;
+      ASN1Object? notAfterObj = sequence.elements?[1];
+      if (notBeforeObj is ASN1UtcTime) {
+        notBefore = notBeforeObj.time;
+      } else if (notBeforeObj is ASN1GeneralizedTime) {
+        notBefore = notBeforeObj.dateTimeValue;
+      } else {
+        throw ArgumentError(
+            'Element at index 0 has to be ASN1GeneralizedTime, ASN1UtcTime');
+      }
+      if (notAfterObj is ASN1UtcTime) {
+        notAfter = notAfterObj.time;
+      } else if (notAfterObj is ASN1GeneralizedTime) {
+        notAfter = notAfterObj.dateTimeValue;
+      } else {
+        throw ArgumentError(
+            'Element at index 1 has to be ASN1GeneralizedTime, ASN1UtcTime');
+      }
+    } catch (e) {
+      print("Validity.fromSequence: $e");
+    }
   }
-}
-
-dynamic toDart(ASN1Object obj) {
-  if (obj is ASN1Null) return null;
-  if (obj is ASN1Sequence) return obj.elements?.map(toDart).toList();
-  if (obj is ASN1Set) return obj.elements?.map(toDart).toSet();
-  if (obj is ASN1Integer) return obj.integer;
-  if (obj is ASN1ObjectIdentifier) return obj.objectIdentifier;
-  if (obj is ASN1BitString) return obj.stringValues;
-  if (obj is ASN1Boolean) return obj.boolValue;
-  if (obj is ASN1OctetString) return obj.elements;
-  if (obj is ASN1PrintableString) return obj.stringValue;
-  if (obj is ASN1UtcTime) return obj.time;
-  if (obj is ASN1GeneralizedTime) return obj.dateTimeValue;
-  if (obj is ASN1IA5String) return obj.stringValue;
-  if (obj is ASN1UTF8String) return obj.utf8StringValue;
-
-  // ASN.1 Identifier format is below:
-  // | 7 | 6 |  5  | 4| 3| 2|1|0|
-  // | Class | P/C | Tag number |
-  //
-  // The Class type is below:
-  // 0 0(0): Universal
-  // 0 1(1): Applicaation
-  // 1 0(2): Context-Specific
-  // 1 1(3): Private
-  //
-  // The P/C is below:
-  // 0: Primitive
-  // 1: Constructed
-  switch (obj.tag) {
-    case 0xa0: // 10 1 00000 => Class is Context-Specific, P/C is Constructed and Tag Number is 0
-      return toDart(ASN1Parser(obj.encodedBytes).nextObject());
-    case 0x86: // 10 0 00110 => Class is Context-Specific, P/C is Primitive and Tag Number is 6
-      return utf8.decode(obj.valueBytes?.toList()??[]);
-  }
-  throw ArgumentError(
-      'Cannot convert $obj (${obj.runtimeType}) to dart object.');
 }

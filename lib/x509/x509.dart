@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:asn1/x509/validity.dart';
 import 'package:pointycastle/asn1.dart';
 
 class X509 {
@@ -30,10 +31,11 @@ class X509 {
     ASN1Sequence sn = parse(base64String);
     sn = sn.elements?.first as ASN1Sequence;
     sn = sn.elements?[4] as ASN1Sequence;
-    var i = sn.elements?.first as ASN1UtcTime;
-    var i1 = sn.elements?[1] as ASN1UtcTime;
+    var v = Validity.fromSequence(sn);
+    // var i = sn.elements?.first as ASN1UtcTime;
+    // var i1 = sn.elements?[1] as ASN1UtcTime;
 
-    return {"notBefore":i.time,"notAfter":i1.time};
+    return {"notBefore":v.notAfter,"notAfter":v.notBefore};
   }
 
     /// subject

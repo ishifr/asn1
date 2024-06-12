@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:asn1/asn1parser/asn1_tree_node.dart';
-import 'package:asn1/asn1parser/encode_to_hex.dart';
-import 'package:asn1/asn1parser/object_identifiers_database.dart';
+import 'package:asn1/asn1parser/helpers/asn1_tree_node.dart';
+import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
+import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:pointycastle/asn1.dart';
 
 Asn1TreeNode parseSequenceToTreeNode(String base64String) {
@@ -19,20 +19,16 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
   var toHex = EncodeToHex();
-  int counter = 0;
-  // counter
 
-  // print(
-  //     "obj: ${obj.tag}: ${obj.totalEncodedByteLength}: ${obj.valueByteLength}:  ${obj.valueStartPosition}");
+
   if (obj.tag == ASN1Tags.SEQUENCE) {
-    counter += obj.valueStartPosition;
-    node.text = "  SEQUENCE: {$counter, ${obj.valueByteLength}}";
+    node.text = "  SEQUENCE: {${obj.valueByteLength}}";
     var sequence = obj as ASN1Sequence;
     sequence.elements?.forEach((element) {
       node.children.add(parseSequence(Asn1TreeNode(), element));
     });
   } else if (obj.tag == ASN1Tags.SET) {
-    node.text = "  SET  {${obj.valueStartPosition}, ${obj.valueByteLength}}";
+    node.text = "  SET  {${obj.valueByteLength}}";
     var sequence = obj as ASN1Set;
     sequence.elements?.forEach((element) {
       node.children.add(parseSequence(Asn1TreeNode(), element));
@@ -59,7 +55,7 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
   } else if (obj.tag == ASN1Tags.BIT_STRING) {
     var i = obj as ASN1BitString;
     node.text =
-        "  BIT STRING  {${obj.valueByteLength}}:  [${i.unusedbits}] :${toHex.encode(Uint8List.fromList(i.stringValues ?? []))} ";
+        "  BIT STRING  {${obj.valueByteLength}}:  [${i.unusedbits}] :[HEX] ${toHex.encode(Uint8List.fromList(i.stringValues ?? []))} ";
   } else if (obj.tag == ASN1Tags.IA5_STRING) {
     var i = obj as ASN1IA5String;
     node.text = "  IA5_STRING  {${obj.valueByteLength}}:  ${i.stringValue} ";
@@ -69,11 +65,11 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
   } else if (obj.tag == ASN1Tags.OCTET_STRING) {
     var i = obj as ASN1OctetString;
     node.text =
-        "  OCTET_STRING  {${obj.valueByteLength}}:  ${toHex.encode(i.octets)} ";
+        "  OCTET_STRING  {${obj.valueByteLength}}:  [HEX] ${toHex.encode(i.octets)} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING_CONSTRUCTED) {
     var i = obj as ASN1OctetString;
     node.text =
-        "  OCTET_STRING_C  {${i.valueByteLength}}: ${toHex.encode(i.octets)}";
+        "  OCTET_STRING_C  {${i.valueByteLength}}: [HEX] ${toHex.encode(i.octets)}";
   } else if (obj.tag != null) {
     /// CONTEXT SPECIFIC
     if (obj.tag! >= 0xA0 && obj.tag! <= 0xBF) {
