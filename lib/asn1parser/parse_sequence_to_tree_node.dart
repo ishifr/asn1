@@ -20,10 +20,10 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
   var toHex = EncodeToHex();
   int counter = 0;
-  // counter 
+  // counter
 
-  print(
-      "obj: ${obj.tag}: ${obj.totalEncodedByteLength}: ${obj.valueByteLength}:  ${obj.valueStartPosition}");
+  // print(
+  //     "obj: ${obj.tag}: ${obj.totalEncodedByteLength}: ${obj.valueByteLength}:  ${obj.valueStartPosition}");
   if (obj.tag == ASN1Tags.SEQUENCE) {
     counter += obj.valueStartPosition;
     node.text = "  SEQUENCE: {$counter, ${obj.valueByteLength}}";
@@ -71,11 +71,9 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
     node.text =
         "  OCTET_STRING  {${obj.valueByteLength}}:  ${toHex.encode(i.octets)} ";
   } else if (obj.tag == ASN1Tags.OCTET_STRING_CONSTRUCTED) {
-    // var i = obj as ASN1OctetString;
-    // print("${i.elements}");
-    node.text = "  OCTET_STRING_C  {${obj.valueByteLength}}";
-  } else if (obj.tag == 0x00) {
-    print("EOC");
+    var i = obj as ASN1OctetString;
+    node.text =
+        "  OCTET_STRING_C  {${i.valueByteLength}}: ${toHex.encode(i.octets)}";
   } else if (obj.tag != null) {
     /// CONTEXT SPECIFIC
     if (obj.tag! >= 0xA0 && obj.tag! <= 0xBF) {
