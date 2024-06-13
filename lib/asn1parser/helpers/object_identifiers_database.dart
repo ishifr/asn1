@@ -1,4 +1,7 @@
-Map findOID(String oid) {
+Map findOID({String? oid,List<int>? identifier }) {
+  if(identifier != null){
+    oid = identifier.join('.');
+  }
   for (var i in oi) {
     if (oid == i['identifierString']) {
       return i;
@@ -11,7 +14,6 @@ Map findOID(String oid) {
   };
 }
 
-
 ///
 /// A list of object identifiers, holding the identifier and a readable name.
 ///
@@ -19,44 +21,48 @@ const oi = [
   {
     'identifierString': '1.2.860.3.16.1.2',
     'readableName': 'Personal Identification Number (PINFL)',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 16, 1, 2]
   },
   {
     'identifierString': '1.2.860.3.16.1.1',
     'readableName': 'Tax Identification Number (INN)',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 16, 1, 1]
   },
   {
     'identifierString': '1.2.860.3.15.1.1.2.1.1',
     'readableName':
         'UZDST 1092:2009 II signature parameters, UNICON.UZ paramset A',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 15, 1, 1, 2, 1, 1]
   },
   {
     'identifierString': '1.2.860.3.15.1.1.2.1',
     'readableName': 'UZDST 1092:2009 II signature public key',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 15, 1, 1, 2, 1]
   },
   {
     'identifierString': '1.2.860.3.15.1.1.2.2.2.2',
     'readableName': 'UZDST 1092:2009 II/1106:2009 sign. alg. with digest',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 15, 1, 1, 2, 2, 2, 2]
   },
   {
     'identifierString': '1.2.860.3.15.1.3.2.1.1',
     'readableName': 'UZDST 1106:2009 II default digest parameters',
-    'identifier': []
+    'identifier': [1, 2, 860, 3, 15, 1, 3, 2, 1, 1]
   },
   {
     'identifierString': '1.2.840.113549.1.7.2',
     'readableName': 'pkcs7-signedData',
-    'identifier': []
+    'identifier': [1, 2, 840, 113549, 1, 7, 2]
   },
-  {'identifierString': '2.5.4.41', 'readableName': 'name', 'identifier': []},
+  {
+    'identifierString': '2.5.4.41',
+    'readableName': 'name',
+    'identifier': [2, 5, 4, 41]
+  },
   {
     'identifierString': '1.2.840.113549.1.9.3',
     'readableName': 'contentType',
-    'identifier': []
+    'identifier': [1, 2, 840, 113549, 1, 9, 3]
   },
   {
     'identifierString': '1.2.840.113549.1.9.22.1',
@@ -280,7 +286,7 @@ const oi = [
   },
   {
     'identifierString': '1.3.6.1.4.1.11129.2.4.2',
-    'readableName': '2',
+    'readableName': 'CT Precertificate SCTs',
     'identifier': [1, 3, 6, 1, 4, 1, 11129, 2, 4, 2]
   },
   {
@@ -734,4 +740,3 @@ const oi = [
     'identifier': [2, 23, 140, 1, 2, 2]
   }
 ];
-

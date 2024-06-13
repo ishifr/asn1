@@ -35,7 +35,7 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
     });
   } else if (obj.tag == ASN1Tags.OBJECT_IDENTIFIER) {
     var i = obj as ASN1ObjectIdentifier;
-    Map oid = findOID(i.objectIdentifierAsString ?? '');
+    Map oid = findOID(oid:i.objectIdentifierAsString ?? '');
     node.text =
         "  OBJECT_I  {${obj.valueByteLength}}:  ${oid['readableName']} [${oid['identifierString']}]";
   } else if (obj.tag == ASN1Tags.PRINTABLE_STRING) {
