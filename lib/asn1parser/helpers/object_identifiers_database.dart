@@ -1,3 +1,4 @@
+/// oid is 'identifierString': '1.2.860.3.16.1.2', identifier 'identifier': [1, 2, 860, 3, 16, 1, 2]
 Map findOID({String? oid,List<int>? identifier }) {
   if(identifier != null){
     oid = identifier.join('.');

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
+import 'package:asn1/x509/issuer_name.dart';
 import 'package:asn1/x509/serial_number.dart';
 import 'package:asn1/x509/signature.dart';
 import 'package:asn1/x509/validity.dart';
@@ -19,16 +20,16 @@ class X509 {
     BigInt? version = Version.fromASN1Integer(sn).version;
     BigInt? serialNumber = SerialNumber.fromASN1Integer(sn).serialNumber;
     var signature = findOID(identifier: Signature.fromASN1Signature(sn).node);
+    var issuer = Name.fromAsn1(sn.elements?.elementAt(3) as ASN1Sequence);
     var validity =
         Validity.fromSequence(sn.elements?.elementAt(4) as ASN1Sequence)
             .validity;
-    // Validity(validity['notBefore'], validity['notAfter']).encode();
 
     tBSCertificate = {
       'version': version,
       'serialNumber': serialNumber,
-      'signature':signature,
-      'issuer': '',
+      'signature': signature,
+      'issuer': issuer.names,
       'validity': validity,
       'subject': '',
       'subjectPublicKeyInfo': '',
