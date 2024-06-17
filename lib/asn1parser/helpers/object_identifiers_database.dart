@@ -1,6 +1,51 @@
+import 'package:pointycastle/pointycastle.dart';
+
+class ObjectIdentifier {
+  final List<int> nodes;
+
+  const ObjectIdentifier(this.nodes);
+  // factory ObjectIdentifier.fromAsn1(ASN1ObjectIdentifier id) {
+  // var bytes = id.valueBytes;
+  // var nodes = <int>[];
+  // var v = bytes?.first;
+  // nodes.add(v ~/ 40);
+  // nodes.add(v % 40);
+
+  // var w = 0;
+  // for (var v in bytes.skip(1)) {
+  //   if (v >= 128) {
+  //     w += v - 128;
+  //     w *= 128;
+  //   } else {
+  //     w += v;
+  //     nodes.add(w);
+  //     w = 0;
+  //   }
+  // }
+  // return ObjectIdentifier(nodes);
+  // }
+  ASN1ObjectIdentifier toAsn1() {
+    var bytes = <int>[];
+    bytes.add(nodes.first * 40 + nodes[1]);
+    for (var v in nodes.skip(2)) {
+      var w = [];
+      while (v > 128) {
+        var u = v % 128;
+        v -= u;
+        v ~/= 128;
+        w.add(u);
+      }
+      w.add(v);
+      bytes.addAll(w.skip(1).toList().reversed.map((v) => v + 128));
+      bytes.add(w.first);
+    }
+    return ASN1ObjectIdentifier(bytes);
+  }
+}
+
 /// oid is 'identifierString': '1.2.860.3.16.1.2', identifier 'identifier': [1, 2, 860, 3, 16, 1, 2]
-Map findOID({String? oid,List<int>? identifier }) {
-  if(identifier != null){
+Map findOID({String? oid, List<int>? identifier}) {
+  if (identifier != null) {
     oid = identifier.join('.');
   }
   for (var i in oi) {

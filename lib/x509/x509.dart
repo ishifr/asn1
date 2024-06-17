@@ -24,6 +24,7 @@ class X509 {
     var validity =
         Validity.fromSequence(sn.elements?.elementAt(4) as ASN1Sequence)
             .validity;
+    var subject = Name.fromAsn1(sn.elements?.elementAt(5) as ASN1Sequence);
 
     tBSCertificate = {
       'version': version,
@@ -31,7 +32,7 @@ class X509 {
       'signature': signature,
       'issuer': issuer.names,
       'validity': validity,
-      'subject': '',
+      'subject': subject.names,
       'subjectPublicKeyInfo': '',
       'issuerUniqueID': '',
     };

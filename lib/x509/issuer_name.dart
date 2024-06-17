@@ -1,4 +1,4 @@
-  import 'package:asn1/x509/to_dart.dart';
+import 'package:asn1/x509/util.dart';
 import 'package:pointycastle/asn1.dart';
 
 class Name {
@@ -24,7 +24,7 @@ class Name {
   factory Name.fromAsn1(ASN1Sequence sequence) {
     return Name(sequence.elements!.map((ASN1Object set) {
       return <dynamic, dynamic>{
-        for (var p in (set as ASN1Set).elements??[])
+        for (var p in (set as ASN1Set).elements ?? [])
           toDart((p as ASN1Sequence).elements![0]): toDart(p.elements![1])
       };
     }).toList());

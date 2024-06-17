@@ -1,6 +1,6 @@
-import 'dart:convert';
-
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
+import 'package:pointycastle/pointycastle.dart';
+import 'dart:convert';
 import 'package:pointycastle/asn1.dart';
 
 dynamic toDart(ASN1Object obj) {
@@ -41,4 +41,29 @@ dynamic toDart(ASN1Object obj) {
       'Cannot convert $obj (${obj.runtimeType}) to dart object.');
 }
 
+ASN1Object fromDart(dynamic obj) {
+  if (obj == null) return ASN1Null();
+  if (obj is List<int>) return ASN1BitString(stringValues: obj);
+  if (obj is List) {
+    var s = ASN1Sequence();
+    for (var v in obj) {
+      s.add(fromDart(v));
+    }
+    return s;
+  }
+  if (obj is Set) {
+    var s = ASN1Set();
+    for (var v in obj) {
+      s.add(fromDart(v));
+    }
+    return s;
+  }
+  if (obj is BigInt) return ASN1Integer(obj);
+  if (obj is int) return ASN1Integer(BigInt.from(obj));
+  if (obj is ObjectIdentifier) return obj.toAsn1();
+  if (obj is bool) return ASN1Boolean(obj);
+  if (obj is String) return ASN1PrintableString(stringValue: obj);
+  if (obj is DateTime) return ASN1UtcTime(obj);
 
+  throw ArgumentError.value(obj, 'obj', 'cannot be encoded as ASN1Object');
+}
