@@ -4,26 +4,26 @@ class ObjectIdentifier {
   final List<int> nodes;
 
   const ObjectIdentifier(this.nodes);
-  // factory ObjectIdentifier.fromAsn1(ASN1ObjectIdentifier id) {
-  // var bytes = id.valueBytes;
-  // var nodes = <int>[];
-  // var v = bytes?.first;
-  // nodes.add(v ~/ 40);
-  // nodes.add(v % 40);
+  factory ObjectIdentifier.fromAsn1(ASN1ObjectIdentifier id) {
+  var bytes = id.valueBytes;
+  var nodes = <int>[];
+  var v = bytes!.first;
+  nodes.add(v ~/ 40);
+  nodes.add(v % 40);
 
-  // var w = 0;
-  // for (var v in bytes.skip(1)) {
-  //   if (v >= 128) {
-  //     w += v - 128;
-  //     w *= 128;
-  //   } else {
-  //     w += v;
-  //     nodes.add(w);
-  //     w = 0;
-  //   }
-  // }
-  // return ObjectIdentifier(nodes);
-  // }
+  var w = 0;
+  for (var v in bytes.skip(1)) {
+    if (v >= 128) {
+      w += v - 128;
+      w *= 128;
+    } else {
+      w += v;
+      nodes.add(w);
+      w = 0;
+    }
+  }
+  return ObjectIdentifier(nodes);
+  }
   ASN1ObjectIdentifier toAsn1() {
     var bytes = <int>[];
     bytes.add(nodes.first * 40 + nodes[1]);

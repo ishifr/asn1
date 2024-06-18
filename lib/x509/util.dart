@@ -8,6 +8,7 @@ dynamic toDart(ASN1Object obj) {
   if (obj is ASN1Sequence) return obj.elements?.map(toDart).toList();
   if (obj is ASN1Set) return obj.elements?.map(toDart).toSet();
   if (obj is ASN1Integer) return obj.integer;
+  // if (obj is ASN1ObjectIdentifier) return ASN1AlgorithmIdentifier(obj);
   if (obj is ASN1ObjectIdentifier) return findOID(identifier: obj.objectIdentifier);
   if (obj is ASN1BitString) return obj.stringValues;
   if (obj is ASN1Boolean) return obj.boolValue;

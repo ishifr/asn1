@@ -1,33 +1,29 @@
+import 'dart:typed_data';
+
+import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
-import 'package:asn1/x509/util.dart';
 import 'package:pointycastle/asn1.dart';
 
-class AlgorithmIdentifier {
-  final ObjectIdentifier algorithm;
-  final dynamic parameters;
+class SubjectPublicKeyInfo extends ASN1Object {
+  late List algorithms;
+  late String subjectPublicKey;
 
-  AlgorithmIdentifier(this.algorithm, this.parameters);
+  SubjectPublicKeyInfo(this.algorithms, this.subjectPublicKey);
 
-  /// AlgorithmIdentifier  ::=  SEQUENCE  {
-  ///   algorithm               OBJECT IDENTIFIER,
-  ///   parameters              ANY DEFINED BY algorithm OPTIONAL  }
-  ///                             -- contains a value of the type
-  ///                             -- registered for use with the
-  ///                             -- algorithm object identifier value
-  factory AlgorithmIdentifier.fromAsn1(ASN1Sequence sequence) {
-    var algorithm = toDart(sequence.elements![0]);
-    var parameters = (sequence.elements?.length ?? 0) > 1
-        ? toDart(sequence.elements![1])
-        : null;
-    return AlgorithmIdentifier(algorithm, parameters);
+  SubjectPublicKeyInfo.fromASN1(ASN1Sequence sequence) {
+    try {
+      ASN1Sequence algo = sequence.elements?.first as ASN1Sequence;
+      algorithms = [];
+      for (var i in algo.elements ?? []) {
+        algorithms.add(
+            findOID(oid: (i as ASN1ObjectIdentifier).objectIdentifierAsString));
+      }
+      print(
+          "BitString: ${EncodeToHex().encode(Uint8List.fromList((sequence.elements?.elementAt(1) as ASN1BitString).stringValues ?? []))}");
+    } catch (e) {
+      print("SubjectPublicKeyInfo.fromASN1: $e");
+    }
   }
-
-  // ASN1Sequence toAsn1() {
-  //   var seq = ASN1Sequence()..add(fromDart(algorithm));
-  //   seq.add(fromDart(parameters));
-  //   return seq;
-  // }
-
-  @override
-  String toString() => "$algorithm${parameters == null ? "" : "($parameters)"}";
 }
+
+void main() {}
