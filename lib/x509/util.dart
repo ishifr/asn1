@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:pointycastle/pointycastle.dart';
@@ -9,9 +11,8 @@ dynamic toDart(ASN1Object obj) {
   if (obj is ASN1Sequence) return obj.elements?.map(toDart).toList();
   if (obj is ASN1Set) return obj.elements?.map(toDart).toSet();
   if (obj is ASN1Integer) return obj.integer;
-  // if (obj is ASN1ObjectIdentifier) return ASN1AlgorithmIdentifier(obj);
-  if (obj is ASN1ObjectIdentifier) return findOID(identifier: obj.objectIdentifier);
-  if (obj is ASN1BitString) return obj.stringValues;
+  if (obj is ASN1ObjectIdentifier) return findOID(oid: obj.objectIdentifierAsString);
+  if (obj is ASN1BitString) return EncodeToHex().encode(Uint8List.fromList(obj.stringValues ?? []));
   if (obj is ASN1Boolean) return obj.boolValue;
   if (obj is ASN1OctetString) return EncodeToHex().encode(obj.octets);
   if (obj is ASN1PrintableString) return obj.stringValue;
