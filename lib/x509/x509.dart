@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
+import 'package:asn1/x509/extensions.dart';
 import 'package:asn1/x509/issuer_name.dart';
 import 'package:asn1/x509/serial_number.dart';
 import 'package:asn1/x509/signature.dart';
@@ -28,7 +29,25 @@ class X509 {
     var subject = Name.fromAsn1(sn.elements?.elementAt(5) as ASN1Sequence);
     // var subjectPublicKeyInfo =
     //     AlgorithmIdentifier.fromAsn1(sn.elements?.elementAt(6) as ASN1Sequence);
-    SubjectPublicKeyInfo.fromASN1(sn.elements?.elementAt(6) as ASN1Sequence);
+    var subjectPublicKeyInfo = SubjectPublicKeyInfo.fromASN1(
+        sn.elements?.elementAt(6) as ASN1Sequence);
+    Extensions? extensions;
+    if ((sn.elements?.length ?? 0) > 6) {
+      var obj = sn.elements?.elementAt(7) as ASN1Object;
+      for (ASN1Object i in sn.elements ?? []) {
+        if (i.tag == 0xa1) {
+          // TODO issuerUniqueID
+          print("issuerUniqueID: 0xa1");
+        } else if (i.tag == 0xa2) {
+          // TODO subjectuniuq
+          print("subjectUniqueID: 0xa2");
+        } else if (i.tag == 0xa3) {
+          extensions = Extensions.fromASN1(i);
+          print("0xa3");
+        } else {}
+      }
+    }
+
     tBSCertificate = {
       'version': version,
       'serialNumber': serialNumber,
@@ -36,8 +55,9 @@ class X509 {
       'issuer': issuer.names,
       'validity': validity,
       'subject': subject.names,
-      'subjectPublicKeyInfo': '',
-      'issuerUniqueID': '',
+      'subjectPublicKeyInfo':
+          "${subjectPublicKeyInfo.subjectPublicKey} ${subjectPublicKeyInfo.algorithms}",
+      'extensions': extensions
     };
   }
 }
@@ -47,3 +67,13 @@ ASN1Sequence parse(String base64String) {
   var parser = ASN1Parser(bytes);
   return parser.nextObject() as ASN1Sequence;
 }
+
+// ASN1Object encodeASN1ContextSpecific(int tag, ASN1Object child){
+//   return encodeASN1ContextSpecific0(tag, child.encode());
+// }
+
+// ASN1Object encodeASN1ContextSpecific0(int tag, Uint8List valueBytes){
+//   var v = ASN1Object(tag: tag);
+//   v.valueBytes = valueBytes;
+//   return v;
+// }

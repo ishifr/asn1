@@ -28,13 +28,19 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     print("This is version: ${X509.getTBSCertificate(x509).tBSCertificate}");
+    Asn1TreeNode elements = parseSequenceToTreeNode(x509);
     final treeController = TreeController<Asn1TreeNode>(
-      roots: [parseSequenceToTreeNode(x509)],
+      roots: [elements],
       childrenProvider: (Asn1TreeNode node) => node.children,
     );
     treeController.expandAll();
     return Scaffold(
-      appBar: AppBar(title: const Text("ASN1")),
+      appBar: AppBar(title: const Text("ASN1"), actions: [
+        InkWell(
+            onTap: () => treeController.collapse(elements.children.first),
+            child: const Padding(
+                padding: EdgeInsets.all(8.0), child: Text("Collapse")))
+      ]),
       body: AnimatedTreeView<Asn1TreeNode>(
         padding: const EdgeInsets.all(6),
         treeController: treeController,

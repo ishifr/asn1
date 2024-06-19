@@ -1,3 +1,4 @@
+import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:pointycastle/pointycastle.dart';
 import 'dart:convert';
@@ -12,7 +13,7 @@ dynamic toDart(ASN1Object obj) {
   if (obj is ASN1ObjectIdentifier) return findOID(identifier: obj.objectIdentifier);
   if (obj is ASN1BitString) return obj.stringValues;
   if (obj is ASN1Boolean) return obj.boolValue;
-  if (obj is ASN1OctetString) return obj.octets;
+  if (obj is ASN1OctetString) return EncodeToHex().encode(obj.octets);
   if (obj is ASN1PrintableString) return obj.stringValue;
   if (obj is ASN1UtcTime) return obj.time;
   if (obj is ASN1GeneralizedTime) return obj.dateTimeValue;
@@ -37,6 +38,10 @@ dynamic toDart(ASN1Object obj) {
       return toDart(ASN1Parser(obj.encodedBytes).nextObject());
     case 0x86: // 10 0 00110 => Class is Context-Specific, P/C is Primitive and Tag Number is 6
       return utf8.decode(obj.encodedBytes ?? []);
+    case 0xa3: // 10 0 00110 => Class is Context-Specific, P/C is Primitive and Tag Number is 6
+      var temp = ASN1Parser(obj.valueBytes).nextObject();
+
+      return toDart(temp);
   }
   throw ArgumentError(
       'Cannot convert $obj (${obj.runtimeType}) to dart object.');

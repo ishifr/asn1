@@ -91,7 +91,7 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
 bool handleIndefiniteLength(List<int> bytes) {
   for (int i = 0; i < bytes.length - 1; i++) {
     if (bytes[i] == 0x00 && bytes[i + 1] == 0x00) {
-      print('End-of-Content (EOC) marker found within sequence');
+      // print('End-of-Content (EOC) marker found within sequence');
       return true;
     }
   }

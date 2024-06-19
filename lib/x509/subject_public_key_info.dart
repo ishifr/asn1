@@ -18,8 +18,8 @@ class SubjectPublicKeyInfo extends ASN1Object {
         algorithms.add(
             findOID(oid: (i as ASN1ObjectIdentifier).objectIdentifierAsString));
       }
-      print(
-          "BitString: ${EncodeToHex().encode(Uint8List.fromList((sequence.elements?.elementAt(1) as ASN1BitString).stringValues ?? []))}");
+      var temp = Uint8List.fromList((sequence.elements?.elementAt(1) as ASN1BitString).stringValues ?? []);
+      subjectPublicKey = EncodeToHex().encode(temp);
     } catch (e) {
       print("SubjectPublicKeyInfo.fromASN1: $e");
     }
