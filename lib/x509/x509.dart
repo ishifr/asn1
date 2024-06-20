@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:asn1/x509/extensions.dart';
 import 'package:asn1/x509/issuer_name.dart';
@@ -63,7 +65,7 @@ class X509 {
   makeTBSCertificate({
     required BigInt version,
     required BigInt serialNumber,
-    required Map signature,
+    required List<int> signature,
   }) {
     ASN1Object v = ASN1Integer(version);
     var temp = ASN1Object(tag: 0xa0);
@@ -71,9 +73,61 @@ class X509 {
     var tbsCert = ASN1Sequence(elements: [
       temp,
       ASN1Integer(serialNumber),
-      ASN1ObjectIdentifier(objectIdentifier)
+      ASN1Sequence(elements: [ASN1ObjectIdentifier(signature)]),
+      ASN1Sequence(elements: [
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 6]),
+            ASN1PrintableString(stringValue: 'GB'),
+          ])
+        ]),
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 8]),
+            ASN1PrintableString(stringValue: 'Greater Manchester'),
+          ])
+        ]),
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 7]),
+            ASN1PrintableString(stringValue: 'Salford'),
+          ])
+        ]),
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 10]),
+            ASN1PrintableString(stringValue: 'Sectigo Limited'),
+          ])
+        ]),
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 3]),
+            ASN1PrintableString(
+                stringValue: 'Sectigo ECC Domain Validation Secure Server CA'),
+          ])
+        ]),
+      ]),
+      ASN1Sequence(elements: [
+        ASN1UtcTime(DateTime.tryParse('2024-03-07 00:00:00.000Z')),
+        ASN1UtcTime(DateTime.tryParse('2025-03-07 23:59:59.000Z')),
+      ]),
+      ASN1Sequence(elements: [
+        ASN1Set(elements: [
+          ASN1Sequence(elements: [
+            ASN1ObjectIdentifier([2, 5, 4, 3]),
+            ASN1PrintableString(stringValue: 'github.com')
+          ])
+        ])
+      ]),
+      ASN1Sequence(elements: [
+        ASN1Sequence(elements: [
+          ASN1ObjectIdentifier([1, 2, 840, 10045, 2, 1]),
+          ASN1ObjectIdentifier([1, 2, 840, 10045, 3, 1, 7]),
+        ]),
+        ASN1BitString(stringValues: Hex().decode('04044efc7a3d5dd918d6a87d9808233949169974dbd398e046e94a72231506e281dd91dec6f09dca888244710c05f157a1985691054ca2034ba3f956db5e57de91'))
+      ]),
     ]);
-    return tbsCert;
+    return tbsCert.encode();
     // tBSCertificate = {
     //   'version': version,
     //   'serialNumber': serialNumber,

@@ -19,7 +19,7 @@ class SubjectPublicKeyInfo extends ASN1Object {
             findOID(oid: (i as ASN1ObjectIdentifier).objectIdentifierAsString));
       }
       var temp = Uint8List.fromList((sequence.elements?.elementAt(1) as ASN1BitString).stringValues ?? []);
-      subjectPublicKey = EncodeToHex().encode(temp);
+      subjectPublicKey = Hex().encode(temp);
     } catch (e) {
       print("SubjectPublicKeyInfo.fromASN1: $e");
     }

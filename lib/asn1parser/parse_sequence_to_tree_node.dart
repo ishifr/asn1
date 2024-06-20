@@ -18,7 +18,7 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 }
 
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
-  var toHex = EncodeToHex();
+  var toHex = Hex();
 
 
   if (obj.tag == ASN1Tags.SEQUENCE) {

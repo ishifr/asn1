@@ -12,9 +12,9 @@ dynamic toDart(ASN1Object obj) {
   if (obj is ASN1Set) return obj.elements?.map(toDart).toSet();
   if (obj is ASN1Integer) return obj.integer;
   if (obj is ASN1ObjectIdentifier) return findOID(oid: obj.objectIdentifierAsString);
-  if (obj is ASN1BitString) return EncodeToHex().encode(Uint8List.fromList(obj.stringValues ?? []));
+  if (obj is ASN1BitString) return Hex().encode(Uint8List.fromList(obj.stringValues ?? []));
   if (obj is ASN1Boolean) return obj.boolValue;
-  if (obj is ASN1OctetString) return EncodeToHex().encode(obj.octets);
+  if (obj is ASN1OctetString) return Hex().encode(obj.octets);
   if (obj is ASN1PrintableString) return obj.stringValue;
   if (obj is ASN1UtcTime) return obj.time;
   if (obj is ASN1GeneralizedTime) return obj.dateTimeValue;

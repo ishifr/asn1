@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:asn1/asn1parser/helpers/asn1_tree_node.dart';
 import 'package:asn1/asn1parser/parse_sequence_to_tree_node.dart';
 import 'package:asn1/x509/x509.dart';
@@ -27,7 +29,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    print("This is version: ${X509.certificate(x509).certificate}");
+    // print("This is version: ${X509.certificate(x509).certificate}");
+    print("This is version: ${base64Encode(X509('').makeTBSCertificate(
+      version: BigInt.from(2),
+      serialNumber:BigInt.parse('103892495973767669722220901035501109925') ,
+      signature: [1, 2, 840, 10045, 4, 3, 2]
+    ))}");
     Asn1TreeNode elements = parseSequenceToTreeNode(x509);
     final treeController = TreeController<Asn1TreeNode>(
       roots: [elements],
