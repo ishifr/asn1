@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:asn1/asn1parser/helpers/asn1_tree_node.dart';
@@ -6,8 +5,7 @@ import 'package:asn1/asn1parser/helpers/encode_to_hex.dart';
 import 'package:asn1/asn1parser/helpers/object_identifiers_database.dart';
 import 'package:pointycastle/asn1.dart';
 
-Asn1TreeNode parseSequenceToTreeNode(String base64String) {
-  var bytes = base64.decode(base64String);
+Asn1TreeNode parseSequenceToTreeNode(Uint8List bytes) {
   var parser = ASN1Parser(bytes);
   var sequence = parser.nextObject() as ASN1Sequence;
   Asn1TreeNode asn1Node = Asn1TreeNode();
@@ -19,7 +17,6 @@ Asn1TreeNode parseSequenceToTreeNode(String base64String) {
 
 parseSequence(Asn1TreeNode node, ASN1Object obj) {
   var toHex = Hex();
-
 
   if (obj.tag == ASN1Tags.SEQUENCE) {
     node.text = "  SEQUENCE: {${obj.valueByteLength}}";
@@ -35,7 +32,7 @@ parseSequence(Asn1TreeNode node, ASN1Object obj) {
     });
   } else if (obj.tag == ASN1Tags.OBJECT_IDENTIFIER) {
     var i = obj as ASN1ObjectIdentifier;
-    Map oid = findOID(oid:i.objectIdentifierAsString ?? '');
+    Map oid = findOID(oid: i.objectIdentifierAsString ?? '');
     node.text =
         "  OBJECT_I  {${obj.valueByteLength}}:  ${oid['readableName']} [${oid['identifierString']}]";
   } else if (obj.tag == ASN1Tags.PRINTABLE_STRING) {

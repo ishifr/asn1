@@ -31,8 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_fancy_tree_view: 1.6.0
-  pointycastle: 3.9.1
+  flutter_bloc: 8.1.6
+  pointycastle: 
+    git: 
+      url: https://github.com/ishifr/pc-dart
   window_manager: 0.3.9
+  file_picker: 8.0.6
   # basic_utils:  
   #   git: 
   #     url: https://github.com/ishifr/Dart-Basic-Utils
